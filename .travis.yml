@@ -14,5 +14,8 @@ cache:
     - $HOME/.coursier/cache
     - $HOME/.sbt
 
+script:
+  - sbt compile
+
 jdk:
   - oraclejdk8

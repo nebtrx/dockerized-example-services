@@ -1,5 +1,6 @@
 # dockerized-example-services
 
+[![Build Status](https://travis-ci.org/nebtrx/dockerized-example-services.svg?branch=master)](https://travis-ci.org/nebtrx/dockerized-example-services)
 
 This repo is a sample app showing how to dockerize [Scala](https://www.scala-lang.org/) 
 microservices in a [monorepo](https://en.wikipedia.org/wiki/Monorepo). 
