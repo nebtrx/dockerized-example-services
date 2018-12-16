@@ -17,22 +17,23 @@ import org.http4s.client.oauth1
 
 import scala.concurrent.ExecutionContext.global
 
-class TWStream[F[_]](implicit F: ConcurrentEffect[F],
-                              CS: ContextShift[F],
-                              A: ApplicativeAsk[F, AppConfig]) {
+class TWStream[F[_]](
+    implicit F: ConcurrentEffect[F],
+    CS: ContextShift[F],
+    A: ApplicativeAsk[F, AppConfig]) {
   // jawn-fs2 needs to know what JSON AST you want
   implicit val facade: RawFacade[Json] = io.circe.jawn.CirceSupportParser.facade
 
   /* These values are created by a Twitter developer web app.
    * OAuth signing is an effect due to generating a nonce for each `Request`.
    */
-  def signRequest(consumerKey: String,
-                  consumerSecret: String,
-                  accessToken: String,
-                  accessSecret: String)
-                 (req: Request[F]): F[Request[F]] = {
+  def signRequest(
+      consumerKey: String,
+      consumerSecret: String,
+      accessToken: String,
+      accessSecret: String)(req: Request[F]): F[Request[F]] = {
     val consumer = oauth1.Consumer(consumerKey, consumerSecret)
-    val token    = oauth1.Token(accessToken, accessSecret)
+    val token = oauth1.Token(accessToken, accessSecret)
     oauth1.signRequest(req, consumer, callback = None, verifier = None, token = Some(token))
   }
 
@@ -51,7 +52,8 @@ class TWStream[F[_]](implicit F: ConcurrentEffect[F],
       st <- client.stream(sr).flatMap(_.body.chunks.parseJsonStream)
     } yield st
 
-    stream.map(_.spaces2)
+    stream
+      .map(_.spaces2)
       .through(lines)
       .through(stringStreamParser)
       .through(decoder[F, Tweet])
@@ -59,8 +61,9 @@ class TWStream[F[_]](implicit F: ConcurrentEffect[F],
 }
 
 object TWStream {
-  def apply[F[_]](implicit F: ConcurrentEffect[F],
-                           CS: ContextShift[F],
-                           A: ApplicativeAsk[F, AppConfig]): TWStream[F] =
+  def apply[F[_]](
+      implicit F: ConcurrentEffect[F],
+      CS: ContextShift[F],
+      A: ApplicativeAsk[F, AppConfig]): TWStream[F] =
     new TWStream[F]()
 }

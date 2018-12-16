@@ -17,10 +17,10 @@ object ProducerApp extends IOApp {
   // ENV VARS - PROGRAM FAILS TO START IF ANY VAR IS MISSING
 
   lazy val TwitterVars = new {
-    val consumerKey = sys.env("TWITTER_CONSUMER_KEY")
-    val consumerSecret = sys.env("TWITTER_CONSUMER_SECRET")
-    val accessToken = sys.env("TWITTER_ACCESS_TOKEN")
-    val accessSecret = sys.env("TWITTER_ACCESS_SECRET")
+    val consumerKey: String = sys.env("TWITTER_CONSUMER_KEY")
+    val consumerSecret: String = sys.env("TWITTER_CONSUMER_SECRET")
+    val accessToken: String = sys.env("TWITTER_ACCESS_TOKEN")
+    val accessSecret: String = sys.env("TWITTER_ACCESS_SECRET")
   }
 
   override def run(args: List[String]): IO[ExitCode] = {

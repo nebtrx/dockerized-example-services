@@ -11,6 +11,8 @@ import com.github.gvolpe.fs2rabbit.util.StreamEval
 import com.github.nebtrx.microexample.common.config.MessageQueueConfig
 import com.github.nebtrx.microexample.common.env.{MessageVars, RabbitVars}
 import fs2.Stream
+import io.chrisdavenport.log4cats.{Logger, SelfAwareStructuredLogger}
+import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.syntax.kleisli._
 
@@ -34,7 +36,8 @@ object WebConsumerApp extends IOApp {
       ssl = false,
       sslContext = None,
       connectionTimeout = 3,
-      requeueOnNack = false)
+      requeueOnNack = false
+    )
 
     val messageQueueConfig = MessageQueueConfig(
       queueName = QueueName(MessageVars.queueName),
@@ -44,12 +47,15 @@ object WebConsumerApp extends IOApp {
 
     implicit val timer: Timer[IO] = IO.timer(global)
     implicit val fs2rabbit: Fs2Rabbit[IO] = Fs2Rabbit[IO](rabbitClientConfig)
+    implicit def unsafeLogger[F[_]: Sync]: SelfAwareStructuredLogger[F] =
+      Slf4jLogger.unsafeCreate[F]
 
-    implicit val ask: ApplicativeAsk[IO, MessageQueueConfig] = new ApplicativeAsk[IO, MessageQueueConfig] {
-      val applicative: Applicative[IO] = Applicative[IO]
-      def ask: IO[MessageQueueConfig] = IO.pure(messageQueueConfig)
-      def reader[A](f: MessageQueueConfig => A): IO[A] = ask.map(f)
-    }
+    implicit val ask: ApplicativeAsk[IO, MessageQueueConfig] =
+      new ApplicativeAsk[IO, MessageQueueConfig] {
+        val applicative: Applicative[IO] = Applicative[IO]
+        def ask: IO[MessageQueueConfig] = IO.pure(messageQueueConfig)
+        def reader[A](f: MessageQueueConfig => A): IO[A] = ask.map(f)
+      }
 
     Server.run[IO](messageQueueConfig).compile.drain.as(ExitCode.Success)
   }
@@ -57,11 +63,12 @@ object WebConsumerApp extends IOApp {
 
 object Server {
 
-  def run[F[_]: ConcurrentEffect](config: MessageQueueConfig)
-                                 (implicit timer: Timer[F],
-                                  fs2rabbit: Fs2Rabbit[F],
-                                  SE: StreamEval[F],
-                                  A: ApplicativeAsk[F, MessageQueueConfig]): Stream[F, ExitCode] =
+  def run[F[_]: ConcurrentEffect](config: MessageQueueConfig)(
+      implicit timer: Timer[F],
+      fs2rabbit: Fs2Rabbit[F],
+      SE: StreamEval[F],
+      L: Logger[F],
+      A: ApplicativeAsk[F, MessageQueueConfig]): Stream[F, ExitCode] =
     BlazeServerBuilder[F]
       .bindHttp(port = 8080, host = "0.0.0.0")
       .withHttpApp(RabbitConsumerService[F].routes.orNotFound)

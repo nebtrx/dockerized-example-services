@@ -56,6 +56,7 @@ lazy val dependencies =
     val CirceVersion = "0.10.0"
     val Specs2Version = "4.2.0"
     val LogbackVersion = "1.2.3"
+    val log4CatsVersion = "0.2.0"
     val Fs2RabbitVersion = "1.0-RC3"
     val CatsMtlVersion = "0.4.0"
     val JawnFs2Version = "0.13.0"
@@ -66,6 +67,8 @@ lazy val dependencies =
     val http4sDsl         = "org.http4s"          %% "http4s-dsl"          % Http4sVersion
     val specs2Core        = "org.specs2"          %% "specs2-core"         % Specs2Version  % "test"
     val logbackClassic    = "ch.qos.logback"      %  "logback-classic"     % LogbackVersion
+    val log4CatsCore      = "io.chrisdavenport"   %% "log4cats-core"       % log4CatsVersion
+    val log4CatsSlf4j     = "io.chrisdavenport"   %% "log4cats-slf4j"      % log4CatsVersion
     val circeGeneric      = "io.circe"            %% "circe-generic"       % CirceVersion
     val circeFs2          = "io.circe"            %% "circe-fs2"           % CirceVersion
     val fs2Rabbit         = "com.github.gvolpe"   %% "fs2-rabbit"          % Fs2RabbitVersion
@@ -80,6 +83,8 @@ lazy val commonDependencies = {
     circeGeneric,
     specs2Core,
     logbackClassic,
+    log4CatsCore,
+    log4CatsSlf4j,
     circeFs2,
     fs2Rabbit,
     fs2RabbitCirce
@@ -124,7 +129,8 @@ lazy val compilerOptions = Seq(
   "-language:higherKinds",
   "-language:postfixOps",
   "-feature",
-  "-Ypartial-unification"
+  "-Ypartial-unification",
+  "-language:reflectiveCalls"
 )
 
 lazy val commonSettings = Seq(

@@ -7,7 +7,7 @@ microservices in a [monorepo](https://en.wikipedia.org/wiki/Monorepo).
 The solution consists in a simple `common` library containing shared type definitions, 
 a `producer` service pulling status updates from [Twitter](https://twitter.com) and 
 pumping those, every one second, to a `consumer` web app through [Rabbit](https://www.rabbitmq.com/) hole, 
-cough..I mean, queue. The web app renders the incoming status data in real time 
+cough..I mean, queue. The web app renders the incoming status data in real time. 
 
 ## Development
 
@@ -60,4 +60,4 @@ watch the magic take place
 
 
 ## License
-This project is licensed under the [MIT License](LICENSE.md)
+This project is licensed under the [MIT License](LICENSE.md).
